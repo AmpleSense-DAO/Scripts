@@ -1,3 +1,7 @@
+//This script was developed to determine which wallets participating in the Zeus kGeyser as of December 13 at 19:00 UTC would receive claim tokens enabling them to mint Zeus kGeyser Pioneer NFTs.
+//This script will be used for the other three planned distributions of Zeus and Apollo kGeyser Pioneer NFTs (more info: https://bit.ly/2N546Jv)
+//Winners are selected based on: 1. The cohort they are within, which is determined by the maximum amount of liquidity they provided during the staking period; 2. The total amount of time they provided liquidity prior to the snapshot. 
+
 const Web3 = require('web3');
 var HDWalletProvider = require("truffle-hdwallet-provider");
 const express = require('express')
@@ -12,7 +16,7 @@ app.listen(port, async () => {
 });
 
 //get a random winner by computing the list top score and using it as max random value
-//then randomly traverse array until we find a user with a higher or equal score than the max
+//then randomly traverse array until we find a user with a higher or equal score (based on total staked) than the max
 function getWinner(myArray) {
   let topScore = BigInt(0)
   myArray.forEach(el => {
@@ -110,7 +114,7 @@ let query = async (infura_key, geyser_address, snapshot_block) => {
   let silver=sorted.splice(0, 33)
   let bronze=sorted.splice(0, 33)
 
-  // distribute gold tokens
+  // distribute gold tokens (wallets within top 33% of liquidity providers)
   let winners = []
   let tokens = 15;
   while(tokens > 0) {
@@ -120,7 +124,7 @@ let query = async (infura_key, geyser_address, snapshot_block) => {
     tokens--
   }
 
-  // distribute silver tokens
+  // distribute silver tokens (wallets within middle 33% of liquidity providers)
   tokens = 8;
   while(tokens > 0) {
     let winner = getWinner(silver)
@@ -129,7 +133,7 @@ let query = async (infura_key, geyser_address, snapshot_block) => {
     tokens--
   }
 
-  // distribute bronze tokens
+  // distribute bronze tokens (wallets within bottom 33% of liquidity providers)
   tokens = 2;
   while(tokens > 0) {
     let winner = getWinner(bronze)
@@ -145,7 +149,7 @@ let query = async (infura_key, geyser_address, snapshot_block) => {
     csv += "\"" + winner.address + "\"," + winner.max + "," + winner.score + "," + winner.status + "\n"
   })
 
-  //contains the text to copy paste into an empty .csv file to generate the excel sheet
+  //contains the text to copy paste into an empty .csv file to generate spreadsheet with listing of winners who will receive NFT claim tokens
   console.log(csv)
 
   return winners;
